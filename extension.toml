@@ -1,0 +1,11 @@
+id = "googlesql-lsp"
+name = "GoogleSQL Language Server"
+version = "0.1.0"
+schema_version = 1
+authors = ["Oddys <yuriy.honcharenko@gmail.com>"]
+description = "Syntax error highlighting in GoogleSQL files."
+repository = "https://github.com/Oddys/googlesql-lsp-zed"
+
+[language_servers.googlesql]
+name = "googlesql"
+languages = ["SQL"]
