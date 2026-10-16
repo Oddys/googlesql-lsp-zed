@@ -1,4 +1,4 @@
-use zed_extension_api::{self as zed};
+use zed_extension_api::{self as zed, settings::LspSettings};
 
 const LANGUAGE_SERVER: &str = "googlesql_lsp";
 
@@ -16,9 +16,23 @@ impl zed::Extension for GoogleSqlLspExtension {
 
     fn language_server_command(
         &mut self,
-        _language_server_id: &zed::LanguageServerId,
-        _worktree: &zed::Worktree,
+        language_server_id: &zed::LanguageServerId,
+        worktree: &zed::Worktree,
     ) -> zed::Result<zed::Command> {
+        // `lsp.googlesql.binary.path` in Zed settings
+        let local_binary = LspSettings::for_worktree(language_server_id.as_ref(), worktree)
+            .ok()
+            .and_then(|s| s.binary);
+        let local_path = local_binary.as_ref().and_then(|b| b.path.clone());
+        if let Some(path) = local_path {
+            eprintln!("[GoogleSQL] Using local binary: {}", path);
+            return Ok(zed::Command {
+                command: path,
+                args: local_binary.and_then(|b| b.arguments).unwrap_or_default(),
+                env: worktree.shell_env(),
+            });
+        }
+
         let (os, arch) = zed::current_platform();
         eprintln!("[GoogleSQL] OS: {:?}, Arch: {:?}", os, arch);
 
